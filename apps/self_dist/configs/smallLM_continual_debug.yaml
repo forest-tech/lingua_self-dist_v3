@@ -1,0 +1,102 @@
+# 前のリポジトリと同じフォーマットで現在エラーが出る原因を特定するためのデバッグ用設定ファイル
+
+name: smallLM_360M_continual_debug
+dump_dir: output/smallLM_360M_continual_debug
+seed: 777
+grad_acc_steps: 1
+gc_collect_freq: 100
+probe_freq: null
+
+steps: 1000
+
+data:
+  root_dir: /home/pj24001974/ku50001532/lingua_self-distillation/data
+  sources:
+      fineweb_edu_10bt_shuffled: 1.0
+  batch_size: 1 # per device batch size
+  seq_len: 8192
+  n_views: 2
+  seed: 42
+  add_bos: false
+  add_eos: true
+  load_async: true
+  prefetch_size: 128
+  tokenizer:
+      name: hf # 矢野さんは hf を指定しているので，バグったら変更してみること
+      path: model/smallLM_360M
+
+optim:
+  lr: 1e-5
+  weight_decay: 0.1
+  epsilon: 1e-8
+  beta1: 0.9
+  beta2: 0.95
+  clip: 1.0
+  scheduler: cosine
+  warmup: 1000
+  # decay_fraction: 0
+  lr_min_ratio: 0.1
+  cycle_length: 1.0
+
+model: 
+  n_layers: 32
+  n_heads: 15
+  n_kv_heads: 5
+  dim: 960
+  norm_eps: 1e-05
+  ffn_dim_multiplier: 1.0
+  multiple_of: 256
+  rope_theta: 100000
+  max_seqlen: 8192
+  vocab_size: 49152
+
+
+distributed:
+  fsdp_type: full_shard
+  compile: true
+  model_dtype: bf16
+  matmul_allow_tf32: false
+  selective_activation_checkpointing: false
+  tp_size: 1
+
+checkpoint:
+  init_ckpt_path: model/smallLM_360M_dcp
+  continue_training_from_init: false
+  dump:
+      every: 100
+      keep: 1
+  eval:
+      every: 100
+      keep: 1
+  
+# profiling:
+#   run: true
+#   mem_warmup: 0
+#   mem_steps: 4
+#   profile_warmup: 100
+#   profile_steps: 4
+
+logging:
+  freq: 1
+  acc_freq: null
+
+  wandb:
+    job_type: train
+    dir: ./wandb
+    project: SD_SmallLM_${model.dim}dim_${model.n_layers}_${model.n_heads}
+    tags: 
+      - self_distillation
+      - debug
+      - 360M
+    resume: auto
+
+async_eval_gpus: null
+
+eval:
+  harness: null
+  validation:
+    max_steps: 1000
+  generator:
+    max_tokens: 8192
+    dtype: bf16
+

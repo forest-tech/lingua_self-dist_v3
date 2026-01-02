@@ -3,3 +3,16 @@
 *.ipynb
 slurm-*.out
 wandb
+tokenizer
+# script
+model
+
+# logにトークンが含まれる可能性があるため無視
+*.log
+*.out
+
+# Model checkpoints
+output
+
+# Ignore Singularity image files
+*.sif
