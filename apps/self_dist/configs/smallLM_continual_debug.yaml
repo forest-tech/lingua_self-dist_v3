@@ -22,7 +22,7 @@ data:
   load_async: true
   prefetch_size: 128
   tokenizer:
-      name: hf # 矢野さんは hf を指定しているので，バグったら変更してみること
+          name: tiktoken # 矢野さんは hf を指定しているので，バグったら変更してみること
       path: model/smallLM_360M
 
 optim:
