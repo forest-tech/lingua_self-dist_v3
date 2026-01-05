@@ -23,7 +23,7 @@ data:
   prefetch_size: 128
   tokenizer:
     name: tiktoken # 矢野さんは hf を指定しているので，バグったら変更してみること
-    path: model/smallLM_360M
+    path: model/smallLM_360M/tokenizer.json
 
 optim:
   lr: 1e-5
